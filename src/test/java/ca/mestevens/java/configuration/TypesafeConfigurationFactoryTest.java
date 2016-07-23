@@ -1,6 +1,7 @@
 package ca.mestevens.java.configuration;
 
 import ca.mestevens.java.UnitTest;
+import ca.mestevens.java.configuration.factory.TypesafeConfigurationFactory;
 import ch.qos.logback.classic.Level;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;

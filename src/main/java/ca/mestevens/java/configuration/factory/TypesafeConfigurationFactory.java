@@ -1,5 +1,6 @@
-package ca.mestevens.java.configuration;
+package ca.mestevens.java.configuration.factory;
 
+import ca.mestevens.java.configuration.TypesafeConfiguration;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
