@@ -18,10 +18,10 @@ The example shown below will be assuming that you are using [Dropwizard](dropwiz
 
 In order to use the configuration factory, there are two steps that need to be done.
 
-In your dropwizard application class, in the `initialize` method, add the following line:
+In your dropwizard application class, in the `initialize` method, add the following bundle:
 
 ```
-bootstrap.setConfigurationFactoryFactory(new TypesafeConfigurationFactoryFactory<>());
+bootstrap.addBundle(new TypesafeConfigurationBundle);
 ```
 
 There are two ways to accomplish the second step of the configuration.
@@ -91,4 +91,11 @@ If I have an instance of my Dropwizard Configuration all I have to do to get tha
 
 ```
 configuration.getConfig().getInt("custom.value");
+```
+
+## Sub-configuration
+If you want your dropwizard application to read it's configuration settings from a sub-config object inside your .conf file, you can provide the sub-config in the set-up step
+
+```
+boostrap.addBundle(new TypesafeConfigurationBundle("subConfig"));
 ```
