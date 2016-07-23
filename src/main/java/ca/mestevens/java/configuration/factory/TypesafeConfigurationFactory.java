@@ -1,8 +1,10 @@
-package ca.mestevens.java.configuration;
+package ca.mestevens.java.configuration.factory;
 
+import ca.mestevens.java.configuration.TypesafeConfiguration;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import io.dropwizard.configuration.ConfigurationException;
@@ -20,14 +22,17 @@ public class TypesafeConfigurationFactory<T extends TypesafeConfiguration> imple
 
     private final ObjectMapper objectMapper;
     private final Class<T> aClass;
+    private final String dropwizardConfigName;
 
     public TypesafeConfigurationFactory(final ObjectMapper objectMapper,
-                                        final Class<T> aClass) {
+                                        final Class<T> aClass,
+                                        final String dropwizardConfigName) {
         this.objectMapper = objectMapper.copy()
-        .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
                 .enable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)
                 .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
         this.aClass = aClass;
+        this.dropwizardConfigName = dropwizardConfigName;
     }
 
     @Override
@@ -49,7 +54,10 @@ public class TypesafeConfigurationFactory<T extends TypesafeConfiguration> imple
     }
 
     private T createTypesafeConfiguration(final Config config) throws IOException {
-        final T typesafeConfiguration = this.objectMapper.readValue(this.objectMapper.writeValueAsString(config.root().unwrapped()), aClass);
+        final Config subConfig = (this.dropwizardConfigName != null) ?
+                config.getConfig(this.dropwizardConfigName) :
+                config;
+        final T typesafeConfiguration = this.objectMapper.readValue(this.objectMapper.writeValueAsString(subConfig.root().unwrapped()), aClass);
         typesafeConfiguration.setConfig(config);
         return typesafeConfiguration;
     }
