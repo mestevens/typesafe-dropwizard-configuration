@@ -57,8 +57,10 @@ public class TypesafeConfigurationFactory<T extends TypesafeConfiguration> imple
         final Config subConfig = (this.dropwizardConfigName != null) ?
                 config.getConfig(this.dropwizardConfigName) :
                 config;
-        final T typesafeConfiguration = this.objectMapper.readValue(this.objectMapper.writeValueAsString(subConfig.root().unwrapped()), aClass);
-        typesafeConfiguration.setConfig(config);
+        final Config resolvedSubConfig = subConfig.resolve();
+        final T typesafeConfiguration = this.objectMapper.readValue(
+                this.objectMapper.writeValueAsString(resolvedSubConfig.root().unwrapped()), aClass);
+        typesafeConfiguration.setConfig(resolvedSubConfig);
         return typesafeConfiguration;
     }
 
