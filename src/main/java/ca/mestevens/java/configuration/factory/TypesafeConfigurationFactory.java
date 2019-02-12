@@ -67,14 +67,13 @@ public class TypesafeConfigurationFactory<T extends TypesafeConfiguration> imple
         this.withOptionalFile(getExecutionDirectory() + "/application.local.conf");
 
         // 4. Look for a matching .env.* files in the resources
-        final String env = systemProperties.getString("env");
-        final String resourceKey = env.isEmpty() ? "application" : env + ".application";
+        final String resourceKey = systemProperties.hasPath("env") ? systemProperties.getString("env") + ".application" : "application";
         this.withResource(resourceKey);
 
 
         // 5. Look for application.conf in resources
         // If we don't pass an environment, then we know that we've already loaded the main application conf
-        if (!env.isEmpty()) {
+        if (!systemProperties.hasPath("env")) {
             this.withResource("application");
         }
 //        final Config config = ConfigFactory.load();
