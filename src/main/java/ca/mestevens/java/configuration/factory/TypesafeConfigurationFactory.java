@@ -4,7 +4,6 @@ import ca.mestevens.java.configuration.TypesafeConfiguration;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import io.dropwizard.configuration.ConfigurationException;
@@ -24,9 +23,7 @@ public class TypesafeConfigurationFactory<T extends TypesafeConfiguration> imple
     private final ObjectMapper objectMapper;
     private final Class<T> aClass;
     private final String dropwizardConfigName;
-    private Config config;
-    private final Config systemProperties = ConfigFactory.systemProperties();
-    private final Config systemEnvironment = ConfigFactory.systemEnvironment();
+    private final Config systemProperties;
 
     public TypesafeConfigurationFactory(final ObjectMapper objectMapper,
                                         final Class<T> aClass,
@@ -37,9 +34,7 @@ public class TypesafeConfigurationFactory<T extends TypesafeConfiguration> imple
                 .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
         this.aClass = aClass;
         this.dropwizardConfigName = dropwizardConfigName;
-        this.config = ConfigFactory.empty();
-        this.config = config.withFallback(systemProperties);
-        this.config = config.withFallback(systemEnvironment);
+        this.systemProperties = ConfigFactory.systemProperties();
     }
 
     @Override
@@ -59,31 +54,33 @@ public class TypesafeConfigurationFactory<T extends TypesafeConfiguration> imple
 
         // Start the loading process
         // Borrowed from: https://www.stubbornjava.com/posts/environment-aware-configuration-with-typesafe-config
+        Config config = ConfigFactory.empty();
 
-        // 1. Pull from the system properties and environment variables
+        // 1. Look for application.conf in resources and application
+        config = withResource(config, "reference");
+        config = withResource(config, "application");
 
+        // 2. Look for a matching .env.* files in the resources
+        final String resourceKey = systemProperties.hasPath("env") ? systemProperties.getString("env") + ".application" : "application";
+        // If we don't pass an environment, then we know that we've already loaded the main application conf
+        if (systemProperties.hasPath("env")) {
+            config = withResource(config, resourceKey);
+        }
 
         // 3. Look for application.local.conf in the working directory
-        this.withOptionalFile(getExecutionDirectory() + "/application.local.conf");
+        config = withOptionalFile(config, getExecutionDirectory() + "/application.local.conf");
 
-        // 4. Look for a matching .env.* files in the resources
-        final String resourceKey = systemProperties.hasPath("env") ? systemProperties.getString("env") + ".application" : "application";
-        this.withResource(resourceKey);
+        // 4. Pull from the system properties and environment variables
+        config = systemProperties.withFallback(config);
+        config = ConfigFactory.systemEnvironment().withFallback(config);
 
-
-        // 5. Look for application.conf in resources
-        // If we don't pass an environment, then we know that we've already loaded the main application conf
-        if (!systemProperties.hasPath("env")) {
-            this.withResource("application");
-        }
-//        final Config config = ConfigFactory.load();
         return this.createTypesafeConfiguration(config);
     }
 
-    private T createTypesafeConfiguration(final Config cfg2) throws IOException {
+    private T createTypesafeConfiguration(final Config config) throws IOException {
         final Config subConfig = (this.dropwizardConfigName != null) ?
-                cfg2.getConfig(this.dropwizardConfigName) :
-                cfg2;
+                config.getConfig(this.dropwizardConfigName) :
+                config;
         final Config resolvedSubConfig = subConfig.resolve();
         final T typesafeConfiguration = this.objectMapper.readValue(
                 this.objectMapper.writeValueAsString(resolvedSubConfig.root().unwrapped()), aClass);
@@ -91,21 +88,23 @@ public class TypesafeConfigurationFactory<T extends TypesafeConfiguration> imple
         return typesafeConfiguration;
     }
 
-    private void withOptionalFile(String path) {
-        final File configFilePath = new File(path);
-
-        if (configFilePath.exists()) {
-            this.config = this.config.withFallback(ConfigFactory.parseFile(configFilePath));
-        }
-    }
-
-    private void withResource(String resource) {
-        final Config resourceConfig = ConfigFactory.parseResourcesAnySyntax(resource);
-        this.config = this.config.withFallback(resourceConfig);
-    }
-
     private String getExecutionDirectory() {
         return systemProperties.getString("user.dir");
     }
+
+    private static Config withOptionalFile(Config config, String path) {
+        final File configFilePath = new File(path);
+
+        if (configFilePath.exists()) {
+            return ConfigFactory.parseFile(configFilePath).withFallback(config);
+        }
+        return config;
+    }
+
+    private static Config withResource(Config config, String resource) {
+        final Config resourceConfig = ConfigFactory.parseResourcesAnySyntax(resource);
+        return resourceConfig.withFallback(config);
+    }
+
 
 }
