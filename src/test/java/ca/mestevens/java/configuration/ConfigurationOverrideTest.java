@@ -32,7 +32,7 @@ public class ConfigurationOverrideTest {
     public void setUp() {
         // Clear the environment variables
         System.clearProperty("logging.level");
-        System.clearProperty("env");
+        System.clearProperty("ENV");
         this.objectMapper = new ObjectMapper()
                 .registerModule(new GuavaModule())
                 .registerModule(new LogbackModule())
@@ -42,7 +42,7 @@ public class ConfigurationOverrideTest {
     @Test
     @SneakyThrows
     public void testFileOverrides() {
-        System.setProperty("env", "test");
+        System.setProperty("ENV", "test");
         // We need this here to tell the ConfigFactory to reload the system and environment variables
         ConfigFactory.invalidateCaches();
         this.typesafeConfiguration = new TypesafeConfigurationFactory<>(objectMapper, TypesafeConfiguration.class, null);
@@ -76,7 +76,7 @@ public class ConfigurationOverrideTest {
     @Test
     @SneakyThrows
     public void testEnivornmentOverrides() {
-        System.setProperty("env", "test");
+        System.setProperty("ENV", "test");
         System.setProperty("logging.level", "TRACE");
         ConfigFactory.invalidateCaches();
         this.typesafeConfiguration = new TypesafeConfigurationFactory<>(objectMapper, TypesafeConfiguration.class, null);
