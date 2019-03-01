@@ -2,14 +2,14 @@
 
 ## Description
 
-A dropwizard configuration factory (and factory factory) so that you can use typesafe config files instead of yml files to configure dropwizard.
+A Dropwizard configuration factory (and factory factory) so that you can use typesafe config files instead of yml files to configure Dropwizard.
 
 ## Dependency Information
 ```
 <dependency>
     <groupId>ca.mestevens.java</groupId>
     <artifactId>typesafe-dropwizard-configuration</artifactId>
-    <version>1.0</version>
+    <version>1.2</version>
 </dependency>
 ```
 
@@ -18,19 +18,19 @@ The example shown below will be assuming that you are using [Dropwizard](dropwiz
 
 In order to use the configuration factory, there are two steps that need to be done.
 
-In your dropwizard application class, in the `initialize` method, add the following bundle:
+In your Dropwizard application class, in the `initialize` method, add the following bundle:
 
 ```
-bootstrap.addBundle(new TypesafeConfigurationBundle);
+bootstrap.addBundle(new TypesafeConfigurationBundle());
 ```
 
 There are two ways to accomplish the second step of the configuration.
 
-### Extend your Dropwizard Configuration
-Have your dropwizard configuration file extend `TypesafeConfiguration` instead of `Configuration`
+### Extend your Dropwizard configuration
+Have your Dropwizard configuration file extend `TypesafeConfiguration` instead of `Configuration`
 
-### Change the Dropwizard Application
-Change the type param of your dropwizard application to be `TypesafeConfiguration` instead of whatever your current configuration class is. Note, this method is only recommended if you don't want to add anything to your configuration class and want to use the typesafe config for everything.
+### Change the Dropwizard application
+Change the type param of your Dropwizard application to be `TypesafeConfiguration` instead of whatever your current configuration class is. Note, this method is only recommended if you don't want to add anything to your configuration class and want to use the typesafe config for everything.
 
 After setting everything up you'll need to have a typesafe config file with settings in it. For a very basic example, look at the following Dropwizard application.yml file
 
@@ -94,7 +94,7 @@ configuration.getConfig().getInt("custom.value");
 ```
 
 ## Sub-configuration
-If you want your dropwizard application to read it's configuration settings from a sub-config object inside your .conf file, you can provide the sub-config in the set-up step
+If you want your Dropwizard application to read it's configuration settings from a sub-config object inside your .conf file, you can provide the sub-config in the set-up step
 
 ```
 boostrap.addBundle(new TypesafeConfigurationBundle("subConfig"));
