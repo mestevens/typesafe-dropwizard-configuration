@@ -4,17 +4,16 @@ import ca.mestevens.java.configuration.TypesafeConfiguration;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import io.dropwizard.configuration.ConfigurationException;
 import io.dropwizard.configuration.ConfigurationFactory;
 import io.dropwizard.configuration.ConfigurationSourceProvider;
-import org.apache.commons.io.IOUtils;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 
 import static java.util.Objects.requireNonNull;
 
@@ -38,13 +37,12 @@ public class TypesafeConfigurationFactory<T extends TypesafeConfiguration> imple
     @Override
     public T build(final ConfigurationSourceProvider configurationSourceProvider, final String path) throws IOException, ConfigurationException {
         try (final InputStream inputStream = configurationSourceProvider.open(requireNonNull(path))) {
-            final Config config = ConfigFactory.parseString(IOUtils.toString(inputStream));
+            final Config config = ConfigFactory.parseReader(new InputStreamReader(inputStream));
             return this.createTypesafeConfiguration(config);
         } catch (final FileNotFoundException ex) {
             final Config config = ConfigFactory.load(path);
             return this.createTypesafeConfiguration(config);
         }
-
     }
 
     @Override
