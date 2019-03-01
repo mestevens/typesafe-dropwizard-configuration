@@ -1,0 +1,21 @@
+{
+  "logging": {
+    "loggers": {
+      "io.dropwizard": "test"
+    }
+  },
+  "server": {
+    "applicationConnectors": [
+      {
+        "type": "https",
+        "port": "4433"
+      }
+    ],
+    "adminConnectors": [
+      {
+        "type": "http",
+        "port": "9191"
+      }
+    ]
+  }
+}
