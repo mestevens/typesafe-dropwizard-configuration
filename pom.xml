@@ -4,7 +4,7 @@
 
     <groupId>ca.mestevens.java</groupId>
     <artifactId>typesafe-dropwizard-configuration</artifactId>
-    <version>1.2</version>
+    <version>1.3-SNAPSHOT</version>
     <name>Typesafe Dropwizard Configuration</name>
     <description>A way to use typesafe config files as dropwizard configuration files</description>
     <url>https://github.com/mestevens/typesafe-dropwizard-configuration.git</url>
