@@ -27,7 +27,6 @@ public class TypesafeConfigurationFactory<T extends TypesafeConfiguration> imple
     private final ObjectMapper objectMapper;
     private final Class<T> aClass;
     private final String dropwizardConfigName;
-    private final Config systemProperties;
 
     public TypesafeConfigurationFactory(final ObjectMapper objectMapper,
                                         final Class<T> aClass,
@@ -38,9 +37,6 @@ public class TypesafeConfigurationFactory<T extends TypesafeConfiguration> imple
                 .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
         this.aClass = aClass;
         this.dropwizardConfigName = dropwizardConfigName;
-        // Invalidate any existing caches to ensure we pickup the latest values from the System and Environment
-        ConfigFactory.invalidateCaches();
-        this.systemProperties = ConfigFactory.systemProperties();
     }
 
     @Override
@@ -60,6 +56,9 @@ public class TypesafeConfigurationFactory<T extends TypesafeConfiguration> imple
 
         // Start the loading process
         // Borrowed from: https://www.stubbornjava.com/posts/environment-aware-configuration-with-typesafe-config
+        // Invalidate any existing caches to ensure we pickup the latest values from the System and Environment
+        ConfigFactory.invalidateCaches();
+        final Config systemProperties = ConfigFactory.systemProperties();
         Config config = ConfigFactory.empty();
 
         // 1. Look for application.conf in resources and application
@@ -68,12 +67,12 @@ public class TypesafeConfigurationFactory<T extends TypesafeConfiguration> imple
 
         // 2. Look for a matching .env.* files in the resources
         // If we don't pass an environment, then we know that we've already loaded the main application conf
-        final String env = getEnvironmentOverride();
+        final String env = getEnvironmentOverride(systemProperties);
         if (env != null) {
             config = withResource(config, env + ".application");
         }
         // 3. Look for application.local.conf in the working directory
-        config = withOptionalFile(config, getExecutionDirectory() + "/application.local.conf");
+        config = withOptionalFile(config, getExecutionDirectory(systemProperties) + "/application.local.conf");
 
         // 4. Pull from the system properties and environment variables
         config = systemProperties.withFallback(config);
@@ -94,7 +93,7 @@ public class TypesafeConfigurationFactory<T extends TypesafeConfiguration> imple
         return typesafeConfiguration;
     }
 
-    private String getExecutionDirectory() {
+    private String getExecutionDirectory(Config systemProperties) {
         return systemProperties.getString("user.dir");
     }
 
@@ -118,10 +117,10 @@ public class TypesafeConfigurationFactory<T extends TypesafeConfiguration> imple
         return resourceConfig.withFallback(config);
     }
 
-    private String getEnvironmentOverride() {
+    private String getEnvironmentOverride(Config systemProperties) {
         // Look to see if $ENV or -DENV is set, biasing towards the environment variable
         if (System.getenv(ENV_KEY) != null)
-                return System.getenv(ENV_KEY);
+            return System.getenv(ENV_KEY);
 
         if (systemProperties.hasPath(ENV_KEY) && !systemProperties.getString(ENV_KEY).equals(""))
             return systemProperties.getString(ENV_KEY);
