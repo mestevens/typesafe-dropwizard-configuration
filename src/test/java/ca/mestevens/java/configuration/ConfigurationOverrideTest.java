@@ -11,6 +11,7 @@ import io.dropwizard.jackson.DiscoverableSubtypeResolver;
 import io.dropwizard.jackson.LogbackModule;
 import io.dropwizard.jetty.ConnectorFactory;
 import io.dropwizard.jetty.HttpConnectorFactory;
+import io.dropwizard.jetty.HttpsConnectorFactory;
 import io.dropwizard.logging.DefaultLoggingFactory;
 import io.dropwizard.server.DefaultServerFactory;
 import lombok.SneakyThrows;
@@ -43,9 +44,8 @@ public class ConfigurationOverrideTest {
     @SneakyThrows
     public void testFileOverrides() {
         System.setProperty("ENV", "test");
-        // We need this here to tell the ConfigFactory to reload the system and environment variables
-        ConfigFactory.invalidateCaches();
         this.typesafeConfiguration = new TypesafeConfigurationFactory<>(objectMapper, TypesafeConfiguration.class, null);
+
 
         final TypesafeConfiguration configuration = typesafeConfiguration.build();
 
@@ -75,10 +75,9 @@ public class ConfigurationOverrideTest {
 
     @Test
     @SneakyThrows
-    public void testEnivornmentOverrides() {
+    public void testEnvironmentOverrides() {
         System.setProperty("ENV", "test");
         System.setProperty("logging.level", "TRACE");
-        ConfigFactory.invalidateCaches();
         this.typesafeConfiguration = new TypesafeConfigurationFactory<>(objectMapper, TypesafeConfiguration.class, null);
 
         final TypesafeConfiguration configuration = typesafeConfiguration.build();
@@ -89,7 +88,7 @@ public class ConfigurationOverrideTest {
         Assert.assertEquals(1, connectorFactories.size());
         Assert.assertTrue(connectorFactories
                 .stream()
-                .map(connectorFactory -> (HttpConnectorFactory) connectorFactory)
+                .map(connectorFactory -> (HttpsConnectorFactory) connectorFactory)
                 .anyMatch(httpConnectorFactory -> httpConnectorFactory.getPort() == 4433));
 
         final List<ConnectorFactory> adminConnectorFactories = defaultServerFactory.getAdminConnectors();

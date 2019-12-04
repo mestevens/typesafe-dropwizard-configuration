@@ -38,6 +38,8 @@ public class TypesafeConfigurationFactory<T extends TypesafeConfiguration> imple
                 .disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
         this.aClass = aClass;
         this.dropwizardConfigName = dropwizardConfigName;
+        // Invalidate any existing caches to ensure we pickup the latest values from the System and Environment
+        ConfigFactory.invalidateCaches();
         this.systemProperties = ConfigFactory.systemProperties();
     }
 
