@@ -46,7 +46,7 @@ public class TypesafeConfigurationFactory<T extends TypesafeConfiguration> imple
     }
 
     @Override
-    public T build() throws IOException, ConfigurationException {
+    public T build() throws IOException {
         final Config config = ConfigFactory.load();
         return this.createTypesafeConfiguration(config);
     }

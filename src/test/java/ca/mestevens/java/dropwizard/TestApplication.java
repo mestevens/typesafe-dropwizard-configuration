@@ -3,16 +3,16 @@ package ca.mestevens.java.dropwizard;
 import ca.mestevens.java.configuration.TypesafeConfiguration;
 import ca.mestevens.java.configuration.bundle.TypesafeConfigurationBundle;
 import ca.mestevens.java.dropwizard.rest.SimpleResource;
-import io.dropwizard.Application;
-import io.dropwizard.setup.Bootstrap;
-import io.dropwizard.setup.Environment;
+import io.dropwizard.core.Application;
+import io.dropwizard.core.setup.Bootstrap;
+import io.dropwizard.core.setup.Environment;
 
 public class TestApplication extends Application<TypesafeConfiguration> {
 
     @Override
     public void initialize(final Bootstrap<TypesafeConfiguration> bootstrap) {
         super.initialize(bootstrap);
-        bootstrap.addBundle(new TypesafeConfigurationBundle());
+        bootstrap.addBundle(new TypesafeConfigurationBundle<>());
     }
 
     @Override

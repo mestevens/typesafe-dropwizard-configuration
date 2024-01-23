@@ -24,7 +24,7 @@ public class TypesafeConfigurationFactoryFactory<T extends TypesafeConfiguration
                                           final Validator validator,
                                           final ObjectMapper objectMapper,
                                           final String s) {
-        return new TypesafeConfigurationFactory(objectMapper, aClass, this.dropwizardConfigName);
+        return new TypesafeConfigurationFactory<>(objectMapper, aClass, this.dropwizardConfigName);
     }
 
 }

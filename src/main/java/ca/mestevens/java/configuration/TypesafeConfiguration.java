@@ -1,14 +1,17 @@
 package ca.mestevens.java.configuration;
 
 import com.typesafe.config.Config;
-import io.dropwizard.Configuration;
-import lombok.Getter;
-import lombok.Setter;
+import io.dropwizard.core.Configuration;
 
 public class TypesafeConfiguration extends Configuration {
 
-    @Getter
-    @Setter
     private Config config;
 
+    public Config getConfig() {
+        return config;
+    }
+
+    public void setConfig(Config newConfig) {
+        this.config = newConfig;
+    }
 }
